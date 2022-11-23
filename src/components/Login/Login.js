@@ -36,24 +36,33 @@ const passwordReducer = (prevState, action) => {
 const Login = (props) => {
   // const [enteredEmail, setEnteredEmail] = useState('');
   // const [emailIsValid, setEmailIsValid] = useState();
-  const [enteredPassword, setEnteredPassword] = useState('');
-  const [passwordIsValid, setPasswordIsValid] = useState();
+  // const [enteredPassword, setEnteredPassword] = useState('');
+  // const [passwordIsValid, setPasswordIsValid] = useState();
   const [formIsValid, setFormIsValid] = useState(false);
 
   // You have the state, dispatch function, and usReducer to set up reducer function to be run on dispatch.
   // and the intial state of emailState
   const [emailState, dispatchEmail] = useReducer(emailReducer, { value: '', isValid: null });
-  const [passwordState, dispatchPassword] = useReducer(passwordReducer, { value: '', isValid: '' });
+  const [passwordState, dispatchPassword] = useReducer(passwordReducer, { value: '', isValid: null });
+
+  // utilized alias assigment in object destructuring to pull isValid data from state.
+  const { isValid: emailIsValid } = emailState;
+  const { isValid: passwordIsValid } = passwordState;
 
   /* Whenever you have an action that is to be executed in response to another
     action, that is considered a side effect. We use debouncing and use effect cleanup function
     to optimize validating the user's email and password.
   */
-  /*useEffect(() => {
+
+  // We switched to using useEffect for checking the form validity because we are guaranteed to get
+  // the latest state snapshots. This would be the optimal way of handling the Form valid state.
+  // we also check if the input was already valid so the effect doesn't constantly run when the user adds more
+  // characters after the input was already valid.
+  useEffect(() => {
     const timeOutId = setTimeout(() => {
       console.log('checking validity');
       setFormIsValid(
-        enteredEmail.includes('@') && enteredPassword.trim().length > 6
+        emailState.isValid && passwordState.isValid
       );
     }, 500); 
 
@@ -63,24 +72,24 @@ const Login = (props) => {
       console.log('ClEANUP');
       clearTimeout(timeOutId);
     }
-  }, [enteredEmail, enteredPassword]); */
+  }, [emailIsValid, passwordIsValid]);
 
   const emailChangeHandler = (event) => {
     //setEnteredEmail(event.target.value);
     dispatchEmail({ type: 'INPUT_EMAIL', payload: event.target.value });
 
-    setFormIsValid(
-      emailState.isValid && passwordState.isValid
-    );
+    // setFormIsValid(
+    //   emailState.isValid && passwordState.isValid
+    // );
   };
 
   const passwordChangeHandler = (event) => {
     //setEnteredPassword(event.target.value);
     dispatchPassword({ type: 'INPUT_PASSWORD', payload: event.target.value })
 
-    setFormIsValid(
-      emailState.isValid && passwordState.isValid
-    );
+    // setFormIsValid(
+    //   emailState.isValid && passwordState.isValid
+    // );
   };
 
   const validateEmailHandler = () => {

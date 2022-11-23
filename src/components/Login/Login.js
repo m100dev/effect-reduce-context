@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useReducer } from 'react';
+import React, { useEffect, useState, useReducer, useContext } from 'react';
+import AuthContext from '../../store/auth-context';
 
 import Card from '../UI/Card/Card';
 import classes from './Login.module.css';
@@ -33,7 +34,7 @@ const passwordReducer = (prevState, action) => {
   return { value: '', isValid: false };
 };
 
-const Login = (props) => {
+const Login = () => {
   // const [enteredEmail, setEnteredEmail] = useState('');
   // const [emailIsValid, setEmailIsValid] = useState();
   // const [enteredPassword, setEnteredPassword] = useState('');
@@ -48,6 +49,9 @@ const Login = (props) => {
   // utilized alias assigment in object destructuring to pull isValid data from state.
   const { isValid: emailIsValid } = emailState;
   const { isValid: passwordIsValid } = passwordState;
+
+  // getting login state from AuthContext store
+  const authCtx = useContext(AuthContext);
 
   /* Whenever you have an action that is to be executed in response to another
     action, that is considered a side effect. We use debouncing and use effect cleanup function
@@ -104,7 +108,7 @@ const Login = (props) => {
 
   const submitHandler = (event) => {
     event.preventDefault();
-    props.onLogin(emailState.value, passwordState.value);
+    authCtx.onLogin(emailState.value, passwordState.value);
   };
 
   return (

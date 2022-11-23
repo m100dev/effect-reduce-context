@@ -9,31 +9,30 @@ console.log('OUTSIDE OF THE FUNCTIONAL COMPONENT');
 
 // Reducer function that automatially runs when the dispatch function is called.
 const emailReducer = (prevState, action) => {
-  
+  if(action.type === 'INPUT_EMAIL') {
+    console.log('INPUT_EMAIL dispatch has run');
+    console.log(action.payload);
+    return { value: action.payload, isValid: action.payload.includes('@')}
+  }
+
+  if(action.type === 'INPUT_BLUR') {
+    return {...prevState, isValid: prevState.value.includes('@')}
+  }
 
   // returns updated state
   return { value: '', isValid: false};
 };
 
 const Login = (props) => {
-  const [enteredEmail, setEnteredEmail] = useState('');
-  const [emailIsValid, setEmailIsValid] = useState();
+  // const [enteredEmail, setEnteredEmail] = useState('');
+  // const [emailIsValid, setEmailIsValid] = useState();
   const [enteredPassword, setEnteredPassword] = useState('');
   const [passwordIsValid, setPasswordIsValid] = useState();
   const [formIsValid, setFormIsValid] = useState(false);
 
   // You have the state, dispatch function, and usReducer to set up reducer function to be run on dispatch.
   // and the intial state of emailState
-  const [emailState, dispatchEmail] = useReducer(emailReducer, { value: '', isValid: false});
-
-  // Demonstrating useEffect features
-  useEffect(() => {
-    console.log('EFFECT RUNNING');
-
-    return () => {
-      console.log('EFFECT CLEANUP');
-    }
-  }, [])
+  const [emailState, dispatchEmail] = useReducer(emailReducer, { value: '', isValid: null});
 
   /* Whenever you have an action that is to be executed in response to another
     action, that is considered a side effect. We use debouncing and use effect cleanup function
@@ -56,10 +55,11 @@ const Login = (props) => {
   }, [enteredEmail, enteredPassword]); */
 
   const emailChangeHandler = (event) => {
-    setEnteredEmail(event.target.value);
+    //setEnteredEmail(event.target.value);
+    dispatchEmail({type: 'INPUT_EMAIL', payload: event.target.value});
 
     setFormIsValid(
-      event.target.value.includes('@') && enteredPassword.trim().length > 6
+      emailState.isValid && enteredPassword.trim().length > 6
     );
   };
 
@@ -67,12 +67,13 @@ const Login = (props) => {
     setEnteredPassword(event.target.value);
 
     setFormIsValid(
-      enteredEmail.includes('@') && event.target.value.trim().length > 6
+      emailState.isValid && event.target.value.trim().length > 6
     );
   };
 
   const validateEmailHandler = () => {
-    setEmailIsValid(enteredEmail.includes('@'));
+    //setEmailIsValid(emailState.isValid.includes('@'));
+    dispatchEmail({type: 'INPUT_BLUR'});
   };
 
   const validatePasswordHandler = () => {
@@ -81,7 +82,7 @@ const Login = (props) => {
 
   const submitHandler = (event) => {
     event.preventDefault();
-    props.onLogin(enteredEmail, enteredPassword);
+    props.onLogin(emailState.value, enteredPassword);
   };
 
   return (
@@ -89,14 +90,14 @@ const Login = (props) => {
       <form onSubmit={submitHandler}>
         <div
           className={`${classes.control} ${
-            emailIsValid === false ? classes.invalid : ''
+            emailState.isValid === false ? classes.invalid : ''
           }`}
         >
           <label htmlFor="email">E-Mail</label>
           <input
             type="email"
             id="email"
-            value={enteredEmail}
+            value={emailState.value}
             onChange={emailChangeHandler}
             onBlur={validateEmailHandler}
           />

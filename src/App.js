@@ -35,10 +35,13 @@ function App() {
     setIsLoggedIn(false);
   };
 
+  //In the context, you can also pass functions.
+
   return (
     <AuthContext.Provider 
       value={{
-        isLoggedIn: isLoggedIn
+        isLoggedIn: isLoggedIn,
+        onLogout: logoutHandler
       }}
     >
       <MainHeader onLogout={logoutHandler} />
